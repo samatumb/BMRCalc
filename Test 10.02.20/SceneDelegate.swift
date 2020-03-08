@@ -31,7 +31,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             let window = UIWindow(windowScene: windowScene)
             
             let userdata = UserData()
-            let contentView = GenderView().environmentObject(userdata)
+            let contentView = Step1().environmentObject(userdata)
             
             window.rootViewController = UIHostingController(rootView: contentView)
             self.window = window

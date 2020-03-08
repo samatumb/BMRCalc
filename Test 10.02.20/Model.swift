@@ -7,95 +7,119 @@
 //
 
 import Foundation
+import SwiftUI
+
+
 
 class UserData: ObservableObject {
     @Published var isGenderFemale = false
-    
-    @Published var chosedAge = 0
-    var minAge = 16
-    var maxAge = 60
-    
-    
-    @Published var chosedWeight = 0
-    var minWeight = 45
-    var maxWeight = 160
-    
-    @Published var chosedHeight = 0
-    var minHeight = 145
-    var maxHeight = 205
-    
-    
-    
-    @Published var fatPNow = 0.35
-    var minFatPNow: Double {
-        let min = minFatPTarget + 0.01
-        return min
-    }
-    var maxFatPNow: Double {
-        let max = isGenderFemale ? 0.50 : 0.40
-        return max
-    }
-    
-    @Published var fatPTarget = 0.15
-    var minFatPTarget: Double {
-        let min = isGenderFemale ? 0.12 : 0.04
-        return min
-    }
-    var maxFatPTarget: Double {
-            let max = maxFatPNow - 0.01
-            return max
+
+    @Published var ageText = String() {
+        didSet {
+            let charLimit = 2
+            if (ageText.count > charLimit && oldValue.count <= charLimit) || ageText.first == "0" {
+                ageText = oldValue
+            }
+            if ageText.count == charLimit {
+                dismissKeyboard()
+            }
         }
-    
-    public func getImageName (_ fatP: Double) -> String {
-        let gender = isGenderFemale ? "f" : "m"
-        let FParr = isGenderFemale ? [0.15, 0.18, 0.21, 0.24, 0.27, 0.30, 0.36, 0.41] : [0.06, 0.08, 0.11, 0.13, 0.16, 0.20, 0.25, 0.31]
-        switch fatP {
-            case minFatPTarget..<FParr[0]:
-                return "\(gender)\(1)"
-            case ..<FParr[1]:
-                return "\(gender)\(2)"
-            case ..<FParr[2]:
-                return "\(gender)\(3)"
-            case ..<FParr[3]:
-                return "\(gender)\(4)"
-            case ..<FParr[4]:
-                return "\(gender)\(5)"
-            case ..<FParr[5]:
-                return "\(gender)\(6)"
-            case ..<FParr[6]:
-                return "\(gender)\(7)"
-            case ..<FParr[7]:
-                return "\(gender)\(8)"
-            case ...maxFatPNow:
-                return "\(gender)\(9)"
-            default:
-                return "\(gender)\(7)"
+    }
+
+    @Published var heightText = String() {
+        didSet {
+            let charLimit = 3
+            if (heightText.count > charLimit && oldValue.count <= charLimit) || (heightText.count >= 1 && heightText.first != "1") {
+                heightText = oldValue
+            }
+            if heightText.count == charLimit {
+                dismissKeyboard()
+            }
+
         }
     }
     
-    var age: Double {
-        return Double(chosedAge + minAge)
+    
+    @Published var weightText = String() {
+        didSet {
+            let charLimit = 3
+            if (weightText.count > charLimit && oldValue.count <= charLimit) || weightText.first == "0" || (weightText.count >= charLimit && weightText.first != "1") {
+                weightText = oldValue
+                dismissKeyboard()
+            }
+            if (weightText.count == charLimit - 1 && weightText.first != "1") || weightText.count == charLimit {
+                dismissKeyboard()
+            }
+        }
     }
-    var weight: Double {
-        return Double(chosedWeight + minWeight)
+    
+    @Published var weightTargetText = String() {
+        didSet {
+            let charLimit = 3
+            if (weightTargetText.count > charLimit && oldValue.count <= charLimit) || weightTargetText.first == "0" || (weightTargetText.count >= charLimit && weightTargetText.first != "1") {
+                weightTargetText = oldValue
+                dismissKeyboard()
+            }
+            if (weightTargetText.count == charLimit - 1 && weightTargetText.first != "1") || weightTargetText.count == charLimit {
+                dismissKeyboard()
+            }
+        }
+    }
+    
+    @Published var fatPercentageRange = 5.0
+    var fatPNow: Double {
+        var fatPArray = [[4,5],[6,7],[8,10],[11,12],[13,15],[16,19],[20,24],[25,30],[31,34],[35,40]]
+        if isGenderFemale {
+            fatPArray = [[12,14],[15,17],[18,20],[21,23],[24,26],[27,29],[30,35],[36,40],[41,49],[50,55]]
+        }
+        let range = Int(fatPercentageRange)
+        return Double((fatPArray[range][0] + fatPArray[range][1])) / 200
+    }
+    
+    
+    
+    private var age: Double {
+        if let a = Double(ageText) {
+            return a
+        }
+        print("age is not set")
+        return 25
     }
     var height: Double {
-        return Double(chosedHeight + minHeight)
+        if let h = Double(heightText) {
+            return h
+        }
+        print("height is not set")
+        return 175
     }
     
+    var weight: Double {
+        if let w = Double(weightText) {
+            return w
+        }
+        print("weight is not set")
+        return 85
+    }
+    
+    var weightTarget: Double {
+        if let w = Double(weightTargetText) {
+            return w
+        }
+        print("weightTarget is not set")
+        return 70
+    }
+
     
     let bodyActivityArray = [1.2, 1.375, 1.55, 1.725, 1.9]
     private let calorieDeficit = 0.25
-    
     private var bodyActivity: Double {
         return bodyActivityArray[2]
     }
     
-    
-    private var BMR: Double {
-        var BMRnumbers = [447.593, 9.247, 3.098, 4.33]
+    var BMR: Double {
+        var BMRnumbers = [88.632, 13.397, 4.799, 5.677]
         if isGenderFemale {
-            BMRnumbers = [88.632, 13.397, 4.799, 5.677]
+            BMRnumbers = [447.593, 9.247, 3.098, 4.33]
         }
         let bmr1 = BMRnumbers[0]
         let bmr2 = BMRnumbers[1] * weight * (1 - fatPNow)
@@ -106,11 +130,7 @@ class UserData: ObservableObject {
     
     
     private var fatLose: Double {
-        let f1 = weight * fatPNow
-        let f2 = weight * (1 - fatPNow)
-        let f3 = 1 - (fatPNow - fatPTarget)
-        let f4 = fatPTarget
-        return f1 - f2 / f3 * f4
+        return weight - weightTarget
     }
     
     var weeksToFatLose: Int {

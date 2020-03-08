@@ -12,77 +12,49 @@ import UIKit
 extension UIColor {
     public static let newPrimary = UIColor(named: "primaryColor")
     public static let newBackground = UIColor.white
+    public static let customPurpleLight = UIColor(named: "customPurpleLight")
+    public static let customPurpleDark = UIColor(named: "customPurpleDark")
     public static let newFontColor = newPrimary
     public static let newFontPrimaryColor = newBackground
 }
+
 extension Color {
     public static let newPrimary = Color("primaryColor")
     public static let newBackground = Color.white
+    public static let customPurpleLight = Color("customPurpleLight")
+    public static let customPurpleDark = Color("customPurpleDark")
     public static let newFontColor = newPrimary
     public static let newFontPrimaryColor = newBackground
 }
 
-struct NavigationConfigurator: UIViewControllerRepresentable {
-    var configure: (UINavigationController) -> Void = { _ in }
-
-    func makeUIViewController(context: UIViewControllerRepresentableContext<NavigationConfigurator>) -> UIViewController {
-        UIViewController()
-    }
-    func updateUIViewController(_ uiViewController: UIViewController, context: UIViewControllerRepresentableContext<NavigationConfigurator>) {
-        if let nc = uiViewController.navigationController {
-            self.configure(nc)
-        }
-    }
-
+func dismissKeyboard() {
+    let keyWindow = UIApplication.shared.connectedScenes
+                        .filter({$0.activationState == .foregroundActive})
+                        .map({$0 as? UIWindowScene})
+                        .compactMap({$0})
+                        .first?.windows
+                        .filter({$0.isKeyWindow}).first
+    keyWindow?.endEditing(true)
 }
 
-
-struct SwiftUISlider: UIViewRepresentable {
-
-  final class Coordinator: NSObject {
-    // The class property value is a binding: It’s a reference to the SwiftUISlider
-    // value, which receives a reference to a @State variable value in ContentView.
-    var value: Binding<Double>
-
-    // Create the binding when you initialize the Coordinator
-    init(value: Binding<Double>) {
-      self.value = value
+class StringAge {
+    var value: String {
+        didSet {
+            let charLimit = 2
+            if (value.count > charLimit && oldValue.count <= charLimit) || value.first == "0" {
+                value = oldValue
+            }
+            if value.count == charLimit {
+                dismissKeyboard()
+            }
+        }
+    }
+    static let charLimit = 2
+    init(newValue: String) {
+        self.value = newValue
     }
 
-    // Create a valueChanged(_:) action
-    @objc func valueChanged(_ sender: UISlider) {
-      self.value.wrappedValue = Double(sender.value)
-    }
-  }
+        
 
-  var thumbColor: UIColor = .white
-  var minTrackColor: UIColor?
-  var maxTrackColor: UIColor?
 
-  @Binding var value: Double
-
-  func makeUIView(context: Context) -> UISlider {
-    let slider = UISlider(frame: .zero)
-    slider.thumbTintColor = thumbColor
-    slider.minimumTrackTintColor = minTrackColor
-    slider.maximumTrackTintColor = maxTrackColor
-    slider.value = Float(value)
-
-    slider.addTarget(
-      context.coordinator,
-      action: #selector(Coordinator.valueChanged(_:)),
-      for: .valueChanged
-    )
-
-    return slider
-  }
-
-  func updateUIView(_ uiView: UISlider, context: Context) {
-    // Coordinating data between UIView and SwiftUI view
-    uiView.value = Float(self.value)
-  }
-
-  func makeCoordinator() -> SwiftUISlider.Coordinator {
-    Coordinator(value: $value)
-  }
 }

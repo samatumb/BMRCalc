@@ -21,26 +21,32 @@ struct Step1: View {
     var body: some View {
         
         NavigationView {
-            
-            VStack {
-                VStack(spacing: 10) {
+            ScrollView {
+                VStack (spacing: 30) {
+                HStack() {
                     Text(message)
                         .font(.system(size: 16.0, weight: .medium))
                         .lineLimit(nil)
                         .multilineTextAlignment(.leading)
                         .foregroundColor(Color.customPurpleDark)
+                    Spacer()
+                    
                 }
                 Spacer()
                 HStack {
                     GenderPicture(imageName: "gm", isFemaleImage: false)
                     GenderPicture(imageName: "gf", isFemaleImage: true)
                 }
+                Spacer()
                 NavigationLink(destination: Step2(img: Image("\(self.userData.isGenderFemale ? "f" : "m")\(Int(self.userData.fatPercentageRange))"))) {
                     NextButtonView(text: "NEXT")
                 }
             }.padding()
                 
-                .navigationBarTitle("", displayMode: .inline)
+                
+            }
+            
+            .navigationBarTitle("", displayMode: .inline)
         }
         
     }

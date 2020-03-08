@@ -24,43 +24,46 @@ struct WeeklyDataRow: View {
         formatter.dateStyle = .short
         return formatter.string(from: data.day)
     }
-    
-
+        
     var body: some View {
- 
-            HStack {
-                Text("неделя \(data.week)")
-                    .font(.body)
-                    .foregroundColor(Color.customPurpleLight)
-                Spacer()
-                Text(dateString)
-                    .font(.body)
-                    .foregroundColor(Color.customPurpleLight)
-                Spacer()
-                Text(String(format: "%.1f", data.weight))
-                    .font(.body)
-                    .foregroundColor(Color.customPurpleLight)
-            }
+        
+        HStack {
+            Text("неделя \(data.week)")
+                .font(.body)
+                .foregroundColor(Color.customPurpleLight)
+            Spacer()
+            Text(dateString)
+                .font(.body)
+                .foregroundColor(Color.customPurpleLight)
+            Spacer()
+            Text(String(format: "%.1f", data.weight))
+                .font(.body)
+                .foregroundColor(Color.customPurpleLight)
         }
     }
-    
-    struct Step4: View {
-        @EnvironmentObject var userData: UserData
-        var listArray: [WeeklyData] {
-            var wk = 0
-            var day = Date()
-            var wg = userData.weight
-            var arr = [WeeklyData(week: wk, day: day ,weight: wg)]
-            for _ in 1...userData.weeksToFatLose {
-                wk += 1
-                day = day.addingTimeInterval(86400 * 7)
-                wg -= userData.fatLosePerWeek
-                arr.append(WeeklyData(week: wk, day: day, weight: wg))
-            }
-            return arr
+}
+
+struct Step4: View {
+    @EnvironmentObject var userData: UserData
+    var listArray: [WeeklyData] {
+        var wk = 0
+        var day = Date()
+        var wg = userData.weight
+        var arr = [WeeklyData(week: wk, day: day ,weight: wg)]
+        for _ in 1...userData.weeksToFatLose {
+            wk += 1
+            day = day.addingTimeInterval(86400 * 7)
+            wg -= userData.fatLosePerWeek
+            arr.append(WeeklyData(week: wk, day: day, weight: wg))
         }
-        var body: some View {
-            List(listArray, rowContent: WeeklyDataRow.init)
-        }
+        return arr
     }
+    var body: some View {
+        
+        List(listArray) { element in
+            WeeklyDataRow(data: element)
+        }
+        
+    }
+}
 

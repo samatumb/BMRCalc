@@ -13,6 +13,7 @@ struct Step3: View {
     @State var message =  "Выбери свой целевой вес"
     
     var body: some View {
+        ScrollView {
         VStack (spacing: 30) {
             VStack (spacing: 10) {
             VStack {
@@ -58,7 +59,6 @@ struct Step3: View {
                 .background(Color.customPurpleLight)
                 .cornerRadius(18)
             }
-            VStack {
                 HStack {
                     Text(message)
                         .font(.system(size: 16.0, weight: .medium))
@@ -87,7 +87,7 @@ struct Step3: View {
                         .foregroundColor(Color.customPurpleLight)
                     
                 }
-            }
+            
             Spacer()
             if userData.weightTargetText != "" {
                 NavigationLink(destination: Step4()) {
@@ -96,7 +96,7 @@ struct Step3: View {
             }
             
         }.padding()
-        
+        }
     }
 }
 
